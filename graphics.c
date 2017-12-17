@@ -17,7 +17,7 @@ void graphics_open_window(char *title, int w, int h) {
     screen->renderer = SDL_CreateRenderer(screen->window, -1, 0);
 
     SDL_SetRenderDrawColor(screen->renderer, 0, 0, 0, 255);
-    SDL_RenderSetScale(screen->renderer, 3, 3);
+    SDL_RenderSetScale(screen->renderer, 6, 6);
     SDL_RenderClear(screen->renderer);
     SDL_RenderPresent(screen->renderer);
 }
@@ -33,19 +33,29 @@ img_t * graphics_load_image(char *filename, int w_tile, int h_tile) {
     return img;
 }
 
-void graphics_render_texture(const img_t *img, int src_x, int src_y, int dst_x, int dst_y, int y, int z) {
+void graphics_render_texture_modded(const img_t *img, int src_x, int src_y, int dst_x, int dst_y, int y, int z, int rotation, flip_t flip, int r, int g, int b, int a) {
     rect_t src = { src_x * img->w_tile, src_y * img->h_tile, img->w_tile, img->h_tile};
     rect_t dst = { dst_x, dst_y, img->w_tile, img->h_tile};
 
-    to_render_t r;
-    r.texture = img->texture;
-    memcpy(&r.src, &src, sizeof(rect_t));
-    memcpy(&r.dst, &dst, sizeof(rect_t));
-    r.y = y;
-    r.z = z;
+    to_render_t ren;
+    ren.texture = img->texture;
+    memcpy(&ren.src, &src, sizeof(rect_t));
+    memcpy(&ren.dst, &dst, sizeof(rect_t));
+    ren.y = y;
+    ren.z = z;
+    ren.rotation = rotation;
+    ren.flip = flip;
+    ren.r = r;
+    ren.g = g;
+    ren.b = b;
+    ren.a = a;
 
-    renderBuffer[renderBufferIndex] = r;
+    renderBuffer[renderBufferIndex] = ren;
     renderBufferIndex ++;
+}
+
+void graphics_render_texture(const img_t *img, int src_x, int src_y, int dst_x, int dst_y, int y, int z, int rotation, flip_t flip) {
+    graphics_render_texture_modded(img, src_x, src_y, dst_x, dst_y, y, z, rotation, flip, 255, 255, 255, 255);
 }
 
 void graphics_draw_rect(int x0, int y0, int x1, int y1, int z, int r, int g, int b, int a) {
@@ -94,8 +104,13 @@ void graphics_show() {
             SDL_SetRenderDrawColor(screen->renderer, ren.r, ren.g, ren.b, ren.a );
             SDL_RenderDrawRect(screen->renderer, &ren.dst);
             SDL_SetRenderDrawColor(screen->renderer, BLACK );
+        } else {
+            if (ren.r || ren.g || ren.b) SDL_SetTextureColorMod(ren.texture, ren.r, ren.g, ren.b);
+            if (ren.a) SDL_SetTextureAlphaMod(ren.texture, ren.a);
+            SDL_RenderCopyEx(screen->renderer, ren.texture, &ren.src, &ren.dst, ren.rotation, NULL, ren.flip);
+            if (ren.r || ren.g || ren.b) SDL_SetTextureColorMod(ren.texture, 0, 0, 0);
+            if (ren.a) SDL_SetTextureAlphaMod(ren.texture, 0);
         }
-        else SDL_RenderCopy(screen->renderer, ren.texture, &ren.src, &ren.dst);
     }
 
     SDL_RenderPresent(screen->renderer);
