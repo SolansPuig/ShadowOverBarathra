@@ -16,6 +16,6 @@
 
 #define MAX_ENTITYS 10000
 
-extern bool debug;
+extern bool DEBUG;
 
 #endif

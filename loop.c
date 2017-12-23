@@ -1,59 +1,55 @@
 #include <stdbool.h>
+#include "globals.h"
 #include "graphics.h"
+#include "input.h"
 
 #define MS_PER_FRAME 16
 
 static bool done;
+static img_t * players0;
+
+bool DEBUG;
 
 void get_input() {
-    SDL_Event event;
-    while (SDL_PollEvent(&event) != 0 && !done) {
-        if (event.type == SDL_QUIT) {
-            done = true;
-        } else if (event.type == SDL_KEYDOWN) {
-            SDL_Keycode key = event.key.keysym.sym;
-            switch (key) {
-                case SDLK_ESCAPE: {
-                    done = true;
-                    break;
-                }
-                case SDLK_UP: {
-                    // Up
-                    break;
-                }
-                case SDLK_DOWN: {
-                    // Down
-                    break;
-                }
-                case SDLK_LEFT: {
-                    // Left
-                    break;
-                }
-                case SDLK_RIGHT: {
-                    // Right
-                    break;
-                }
-            }
-        } else if (event.type == SDL_KEYUP) {
-            SDL_Keycode key = event.key.keysym.sym;
-            switch (key) {
-                case SDLK_UP: {
-                    // Up
-                    break;
-                }
-                case SDLK_DOWN: {
-                    // Down
-                    break;
-                }
-                case SDLK_LEFT: {
-                    // Left
-                    break;
-                }
-                case SDLK_RIGHT: {
-                    // Right
-                    break;
-                }
-            }
+    input_get();
+
+    if (if_input(F3))   DEBUG = true;
+    else                DEBUG = false;
+    if (if_input(ESC) || if_input(QUIT))    done = true;
+}
+
+void update() {}
+
+void render() {
+    graphics_render_texture(players0, 0, 0, 10, 30, 38, 0, 0, 1);
+    graphics_show_and_clear();
+}
+
+int main (void) {
+    DEBUG = false;
+    graphics_open_window("Shadow Over Barathra", 1780, 920);
+    players0 = graphics_load_image("./assets/Player0.png", 16, 16);
+
+    double lag = 0.0;
+    done = false;
+    double previous = SDL_GetTicks();
+    while (!done) {
+        double current = SDL_GetTicks();
+        double elapsed = current - previous;
+        previous = current;
+        lag += elapsed;
+
+        get_input();
+
+        while (lag >= MS_PER_UPDATE) {
+            update();
+            lag -= MS_PER_UPDATE;
         }
+
+        render();
     }
+
+    graphics_close_texture(players0);
+    graphics_close_window(screen);
+    return 0;
 }
