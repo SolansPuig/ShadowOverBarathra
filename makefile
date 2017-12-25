@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -g
 LIBS = -lSDL2 -lSDL2_image -lm
-OBJ = graphics.o input.o loop.o
+OBJ = graphics.o input.o sprite.o loop.o
 DEBUG = -g
 
 %.o: %.c %.h

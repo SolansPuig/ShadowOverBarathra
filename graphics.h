@@ -63,6 +63,8 @@ void graphics_render_texture_modded(const img_t *img, int src_x, int src_y, int 
 //      src_x and src_y are the coords, in tile-sizes, of the tile that must be rendered.
 //      dst_x and dst_y are the coords, in pixels, where to draw the top left corner.
 //      y and z are the height and depth of the entity calling this, to calculate which image has to render on top.
+//      rotation a number, in degrees, to rotate the image.
+//      flip is one of { NO_FLIP, FLIP_HORIZONTAL, FLIP_VERTICAL, FLIP_DIAGONAL }.
 //      r is the red value used to mod the original image.
 //      g is the green value used to mod the original image.
 //      b the blue value used to mod the original image.
